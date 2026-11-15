@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>plannertripbyEndlessPrime</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fafaf9;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d6d2;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="text-slate-700 font-sans min-h-full flex flex-col selection:bg-emerald-100 selection:text-emerald-800">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Minimal Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold shadow-xs">
+                    <i class="fa-solid fa-compass text-base"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-base text-stone-900 tracking-tight">plannertripbyEndlessPrime</h1>
+                    <p class="text-[11px] text-stone-400">บันทึกข้อมูลอัตโนมัติ • แพลนเที่ยวส่วนตัว</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="resetDataStorage()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 rounded-lg transition">
+                    <i class="fa-solid fa-rotate-right"></i> รีเซ็ต
+                </button>
+                <button onclick="openAddActivityModal()" class="flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-medium text-white bg-stone-900 hover:bg-stone-800 rounded-xl shadow-xs transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>เพิ่มกิจกรรม</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-8">
+
+        <!-- Day Switcher & Date Bar -->
+        <section class="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div id="day-tabs-container" class="flex items-center gap-2 overflow-x-auto w-full pb-1 sm:pb-0">
+                <!-- Injected by JS -->
+            </div>
+            <button onclick="addNewDay()" class="whitespace-nowrap px-3.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl border border-emerald-100 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-plus"></i> เพิ่มวันใหม่
+            </button>
+        </section>
+
+        <!-- Active Day Header Info with Date Input -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-1">
+            <div class="flex items-center gap-3 flex-wrap">
+                <h2 id="current-day-main-title" class="text-xl font-bold text-stone-900">Day 1</h2>
+                <input type="text" id="current-day-date-input" onchange="updateActiveDayDate(this)" class="text-xs font-medium text-stone-700 bg-white border border-stone-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-stone-400 transition shadow-2xs" placeholder="ระบุวันที่ (เช่น 4 Dec 2026)">
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="deleteCurrentDay()" class="px-3.5 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition flex items-center gap-1.5 border border-rose-100">
+                    <i class="fa-solid fa-trash-can"></i> ลบวันนี้
+                </button>
+            </div>
+        </div>
+
+        <!-- Itinerary Timeline By Custom Periods -->
+        <div class="space-y-6" id="periods-container">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- Travel Planning Tips Section -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200/80 shadow-xs space-y-4 mt-12">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-stone-100 text-stone-700 flex items-center justify-center">
+                        <i class="fa-solid fa-lightbulb text-sm"></i>
+                    </div>
+                    <h3 class="font-bold text-stone-900 text-base">คำแนะนำสำหรับการจัดทริป</h3>
+                </div>
+                <span class="text-xs text-stone-400">plannertripbyEndlessPrime</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
+                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-calendar-days text-stone-700"></i> กำหนดวันที่อิสระ
+                    </h4>
+                    <p class="text-xs text-stone-500 leading-relaxed">
+                        คุณสามารถระบุวันที่ในแต่ละวันได้ตามต้องการ เช่น "4 Dec 2026" ทั้งจากตอนเพิ่มวันใหม่หรือแก้ไขที่ช่องวันที่ด้านบน
+                    </p>
+                </div>
+                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
+                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-clock text-stone-700"></i> กำหนดเวลาอิสระ
+                    </h4>
+                    <p class="text-xs text-stone-500 leading-relaxed">
+                        คุณสามารถพิมพ์ช่วงเวลาหรือชื่อช่วง (เช่น "ช่วงเช้า", "10:00 - 12:00") ได้อย่างอิสระตามต้องการ
+                    </p>
+                </div>
+                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
+                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
+                        <i class="fa-solid fa-cloud-arrow-down text-stone-700"></i> บันทึกอัตโนมัติ
+                    </h4>
+                    <p class="text-xs text-stone-500 leading-relaxed">
+                        ข้อมูลทั้งหมดจะถูกบันทึกไว้ในเบราว์เซอร์ของคุณโดยอัตโนมัติ ปลอดภัยและเรียกดูได้ทันที
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 py-6 mt-12 text-center text-xs text-stone-400">
+        <p>plannertripbyEndlessPrime • Your Ultimate Travel Companion</p>
+    </footer>
+
+    <!-- MODAL: ADD / EDIT ACTIVITY -->
+    <div id="activity-modal" class="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-100 transform transition-all">
+            <div class="flex justify-between items-center mb-5 pb-3 border-b border-stone-100">
+                <h3 class="font-bold text-stone-900 text-base" id="activity-modal-title">เพิ่มกิจกรรมใหม่</h3>
+                <button onclick="closeActivityModal()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="activity-form" onsubmit="saveActivity(event)" class="space-y-4 text-sm">
+                <input type="hidden" id="activity-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">วันที่ในทริป</label>
+                        <select id="activity-day" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                            <!-- Injected -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">ช่วงเวลา (Period)</label>
+                        <input type="text" id="activity-period" required placeholder="เช่น ช่วงเช้า, 10:00" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-stone-700 mb-1">เวลาเฉพาะ (เช่น 10:00 - 12:00)</label>
+                    <input type="text" id="activity-time" required placeholder="เช่น 10:00 - 12:00" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-stone-700 mb-1">ชื่อสถานที่ / จุดหมายปลายทาง</label>
+                    <input type="text" id="activity-title" required placeholder="เช่น วัดอาซากุสะ (Senso-ji)" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-stone-700 mb-1">รายละเอียดกิจกรรม / สิ่งที่ต้องทำ</label>
+                    <textarea id="activity-notes" rows="2" placeholder="เช่น ถ่ายรูปโคมแดง เดินช้อปปิ้งถนนนากามิเซะ" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-stone-700 mb-1">การเดินทาง (Transport)</label>
+                    <input type="text" id="activity-transport" placeholder="เช่น รถไฟใต้ดิน Ginza Line" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-3">
+                    <button type="button" onclick="closeActivityModal()" class="px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-100 font-medium text-xs transition">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-medium text-xs shadow-md transition">บันทึกกิจกรรม</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const DEFAULT_STATE = {
+            currentDay: 1,
+            days: [
+                { day: 1, date: "4 Dec 2026" },
+                { day: 2, date: "5 Dec 2026" }
+            ],
+            activities: [
+                { id: 1, day: 1, period: "ช่วงเช้า", time: "09:00 - 11:30", title: "เดินทางถึงสนามบิน & เช็คอินโรงแรม", notes: "ฝากกระเป๋าเดินทางที่ล็อบบี้โรงแรม", transport: "🚆 รถไฟด่วน" },
+                { id: 2, day: 1, period: "ช่วงบ่าย", time: "13:00 - 17:00", title: "เที่ยวชมแลนด์ดิ้งใจกลางเมือง", notes: "เดินเล่นถ่ายรูปและหาของกินอร่อยๆ", transport: "🚇 รถไฟใต้ดิน" },
+                { id: 3, day: 1, period: "ช่วงเย็น / ค่ำ", time: "18:30 - 21:00", title: "ทานมื้อค่ำร้านดังประจำย่าน", notes: "ลิ้มลองเมนูเด็ดท้องถิ่น", transport: "🚶 เดินเท้า" }
+            ]
+        };
+
+        let appState = loadState();
+
+        function loadState() {
+            const saved = localStorage.getItem('plannertripby_endless_prime_state');
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch (e) {
+                    console.error("Failed to parse saved state", e);
+                }
+            }
+            return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        }
+
+        function saveState() {
+            localStorage.setItem('plannertripby_endless_prime_state', JSON.stringify(appState));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+
+        function renderAll() {
+            renderDayTabs();
+            renderActiveDayContent();
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-stone-900 text-white' : 'bg-rose-600 text-white';
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium transition transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation'}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function renderDayTabs() {
+            const container = document.getElementById('day-tabs-container');
+            container.innerHTML = appState.days.map(d => `
+                <button onclick="selectDay(${d.day})" class="px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 ${appState.currentDay === d.day ? 'bg-stone-900 text-white shadow-xs' : 'bg-stone-100 hover:bg-stone-200 text-stone-600'}">
+                    <span>Day ${d.day}</span>
+                    ${d.date ? `<span class="opacity-80 text-[11px] font-normal">(${d.date})</span>` : ''}
+                </button>
+            `).join('');
+
+            const modalDaySelect = document.getElementById('activity-day');
+            modalDaySelect.innerHTML = appState.days.map(d => `<option value="${d.day}">Day ${d.day} ${d.date ? '(' + d.date + ')' : ''}</option>`).join('');
+        }
+
+        function selectDay(dayNum) {
+            appState.currentDay = dayNum;
+            renderDayTabs();
+            renderActiveDayContent();
+        }
+
+        function addNewDay() {
+            const nextDayNum = appState.days.length + 1;
+            const defaultDateStr = prompt("ระบุวันที่สำหรับวันใหม่ (เช่น 6 Dec 2026):", `${nextDayNum + 3} Dec 2026`) || `${nextDayNum} Dec 2026`;
+            appState.days.push({ day: nextDayNum, date: defaultDateStr });
+            appState.currentDay = nextDayNum;
+            saveState();
+            renderAll();
+            showToast(`เพิ่ม Day ${nextDayNum} (${defaultDateStr}) สำเร็จ!`);
+        }
+
+        function updateActiveDayDate(el) {
+            const currentDayObj = appState.days.find(d => d.day === appState.currentDay);
+            if (currentDayObj) {
+                currentDayObj.date = el.value.trim();
+                saveState();
+                renderDayTabs();
+                showToast('อัปเดตวันที่สำเร็จ');
+            }
+        }
+
+        function renderActiveDayContent() {
+            const currentDayObj = appState.days.find(d => d.day === appState.currentDay) || appState.days[0];
+            const dayActivities = appState.activities.filter(a => a.day === appState.currentDay);
+
+            document.getElementById('current-day-main-title').innerText = `Day ${appState.currentDay}`;
+            document.getElementById('current-day-date-input').value = currentDayObj.date || '';
+
+            const periodsContainer = document.getElementById('periods-container');
+
+            // Extract unique periods for this day, or default to standard ones if empty
+            let uniquePeriods = [...new Set(dayActivities.map(a => a.period))];
+            if (uniquePeriods.length === 0) {
+                uniquePeriods = ["ช่วงเช้า", "ช่วงบ่าย", "ช่วงเย็น / ค่ำ"];
+            }
+
+            periodsContainer.innerHTML = uniquePeriods.map(periodName => {
+                const periodActs = dayActivities.filter(a => a.period === periodName);
+                return `
+                    <div class="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/80 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-stone-900 text-sm sm:text-base">${periodName}</h3>
+                                    <p class="text-xs text-stone-400">${periodActs.length} กิจกรรมในช่วงนี้</p>
+                                </div>
+                            </div>
+                            <button onclick="openAddActivityModalWithPeriod('${periodName}')" class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium rounded-xl transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i> เพิ่มกิจกรรม
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            ${periodActs.length === 0 ? `
+                                <div class="py-6 text-center text-stone-400 text-xs border border-dashed border-stone-200 rounded-xl">
+                                    ยังไม่มีกิจกรรมในช่วงเวลานี้
+                                </div>
+                            ` : periodActs.map(act => `
+                                <div class="bg-stone-50/70 hover:bg-stone-50 p-4 rounded-2xl border border-stone-100 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                    <div class="space-y-1.5">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="px-2.5 py-0.5 rounded-lg bg-stone-900 text-white text-[11px] font-semibold">${act.time}</span>
+                                            ${act.transport ? `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-medium"><i class="fa-solid fa-route mr-1"></i>${act.transport}</span>` : ''}
+                                        </div>
+                                        <h4 class="font-bold text-stone-900 text-sm sm:text-base pt-0.5">${act.title}</h4>
+                                        ${act.notes ? `<p class="text-xs text-stone-600 leading-relaxed">${act.notes}</p>` : ''}
+                                    </div>
+
+                                    <div class="flex items-center justify-end w-full sm:w-auto gap-1 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-200/50">
+                                        <button onclick="editActivity(${act.id})" class="w-8 h-8 rounded-lg bg-white border border-stone-200 hover:bg-stone-100 text-stone-600 flex items-center justify-center transition" title="แก้ไข">
+                                            <i class="fa-solid fa-pen text-xs"></i>
+                                        </button>
+                                        <button onclick="deleteActivity(${act.id})" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition" title="ลบ">
+                                            <i class="fa-solid fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteCurrentDay() {
+            if (appState.days.length <= 1) {
+                showToast('ไม่สามารถลบวันสุดท้ายของทริปได้', 'error');
+                return;
+            }
+            if (!confirm(`คุณต้องการลบ Day ${appState.currentDay} ใช่หรือไม่?`)) return;
+
+            const targetDay = appState.currentDay;
+            
+            let remainingDays = appState.days.filter(d => d.day !== targetDay);
+            
+            let oldToNewMap = {};
+            remainingDays.forEach((d, idx) => {
+                oldToNewMap[d.day] = idx + 1;
+                d.day = idx + 1;
+            });
+
+            let updatedActivities = [];
+            appState.activities.forEach(a => {
+                if (a.day !== targetDay) {
+                    a.day = oldToNewMap[a.day];
+                    updatedActivities.push(a);
+                }
+            });
+
+            appState.days = remainingDays;
+            appState.activities = updatedActivities;
+            appState.currentDay = Math.min(appState.currentDay, appState.days.length);
+
+            saveState();
+            renderAll();
+            showToast('ลบวันเดินทางเรียบร้อยแล้ว', 'error');
+        }
+
+        function openAddActivityModal() {
+            document.getElementById('activity-modal-title').innerText = 'เพิ่มกิจกรรมใหม่';
+            document.getElementById('activity-form').reset();
+            document.getElementById('activity-id').value = '';
+            document.getElementById('activity-day').value = appState.currentDay;
+            document.getElementById('activity-period').value = 'ช่วงเช้า';
+            document.getElementById('activity-time').value = '10:00 - 12:00';
+            document.getElementById('activity-modal').classList.remove('hidden');
+        }
+
+        function openAddActivityModalWithPeriod(periodName) {
+            openAddActivityModal();
+            document.getElementById('activity-period').value = periodName;
+        }
+
+        function closeActivityModal() {
+            document.getElementById('activity-modal').classList.add('hidden');
+        }
+
+        function saveActivity(event) {
+            event.preventDefault();
+            const id = document.getElementById('activity-id').value;
+            const day = parseInt(document.getElementById('activity-day').value);
+            const period = document.getElementById('activity-period').value.trim();
+            const time = document.getElementById('activity-time').value.trim();
+            const title = document.getElementById('activity-title').value.trim();
+            const notes = document.getElementById('activity-notes').value.trim();
+            const transport = document.getElementById('activity-transport').value.trim();
+
+            if (id) {
+                const act = appState.activities.find(a => a.id == id);
+                if (act) {
+                    act.day = day;
+                    act.period = period;
+                    act.time = time;
+                    act.title = title;
+                    act.notes = notes;
+                    act.transport = transport;
+                }
+                showToast('แก้ไขกิจกรรมสำเร็จ');
+            } else {
+                const newId = appState.activities.length > 0 ? Math.max(...appState.activities.map(a => a.id)) + 1 : 1;
+                appState.activities.push({
+                    id: newId,
+                    day,
+                    period,
+                    time,
+                    title,
+                    notes,
+                    transport
+                });
+                showToast('เพิ่มกิจกรรมใหม่สำเร็จ');
+            }
+
+            saveState();
+            closeActivityModal();
+            renderAll();
+        }
+
+        function editActivity(id) {
+            const act = appState.activities.find(a => a.id == id);
+            if (!act) return;
+
+            document.getElementById('activity-modal-title').innerText = 'แก้ไขกิจกรรม';
+            document.getElementById('activity-id').value = act.id;
+            document.getElementById('activity-day').value = act.day;
+            document.getElementById('activity-period').value = act.period;
+            document.getElementById('activity-time').value = act.time;
+            document.getElementById('activity-title').value = act.title;
+            document.getElementById('activity-notes').value = act.notes || '';
+            document.getElementById('activity-transport').value = act.transport || '';
+
+            document.getElementById('activity-modal').classList.remove('hidden');
+        }
+
+        function deleteActivity(id) {
+            appState.activities = appState.activities.filter(a => a.id != id);
+            saveState();
+            renderAll();
+            showToast('ลบกิจกรรมเรียบร้อยแล้ว', 'error');
+        }
+
+        function resetDataStorage() {
+            appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            saveState();
+            renderAll();
+            showToast('รีเซ็ตข้อมูลเป็นค่าเริ่มต้นแล้ว');
+        }
+    </script>
+</body>
+</html>
