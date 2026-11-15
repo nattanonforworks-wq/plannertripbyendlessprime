@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>plannertripbyEndlessPrime</title>
+    <title>plannertripbyEndlessPrime - Realtime</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Prompt & Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -22,21 +27,10 @@
         }
     </script>
     <style>
-        body {
-            background-color: #fafaf9;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f0;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d6d6d2;
-            border-radius: 9999px;
-        }
+        body { background-color: #fafaf9; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f0; }
+        ::-webkit-scrollbar-thumb { background: #d6d6d2; border-radius: 9999px; }
     </style>
 </head>
 <body class="text-slate-700 font-sans min-h-full flex flex-col selection:bg-emerald-100 selection:text-emerald-800">
@@ -53,13 +47,13 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-sm sm:text-base text-stone-900 tracking-tight">plannertripbyEndlessPrime</h1>
-                    <p class="text-[11px] text-stone-400">บันทึกข้อมูลอัตโนมัติ • แพลนเที่ยวส่วนตัว</p>
+                    <p class="text-[11px] text-emerald-600 font-medium"><i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i> Real-time Sync Active</p>
                 </div>
             </div>
 
             <div class="flex items-center space-x-2">
                 <button onclick="resetDataStorage()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-800 bg-stone-100 hover:bg-stone-200 rounded-lg transition">
-                    <i class="fa-solid fa-rotate-right"></i> รีเซ็ต
+                    <i class="fa-solid fa-rotate-right"></i> รีเซ็ตค่าเริ่มต้น
                 </button>
                 <button onclick="openAddActivityModal()" class="flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-medium text-white bg-stone-900 hover:bg-stone-800 rounded-xl shadow-xs transition">
                     <i class="fa-solid fa-plus"></i>
@@ -100,50 +94,11 @@
             <!-- Injected by JS -->
         </div>
 
-        <!-- Travel Planning Tips Section -->
-        <section class="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200/80 shadow-xs space-y-4 mt-12">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-stone-100 text-stone-700 flex items-center justify-center">
-                        <i class="fa-solid fa-lightbulb text-sm"></i>
-                    </div>
-                    <h3 class="font-bold text-stone-900 text-base">คำแนะนำสำหรับการจัดทริป</h3>
-                </div>
-                <span class="text-xs text-stone-400">plannertripbyEndlessPrime</span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
-                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-calendar-days text-stone-700"></i> กำหนดวันที่อิสระ
-                    </h4>
-                    <p class="text-xs text-stone-500 leading-relaxed">
-                        คุณสามารถระบุวันที่ในแต่ละวันได้ตามต้องการ เช่น "4 Dec 2026" ทั้งจากตอนเพิ่มวันใหม่หรือแก้ไขที่ช่องวันที่ด้านบน
-                    </p>
-                </div>
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
-                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-clock text-stone-700"></i> กำหนดเวลาอิสระ
-                    </h4>
-                    <p class="text-xs text-stone-500 leading-relaxed">
-                        คุณสามารถพิมพ์ช่วงเวลาหรือชื่อช่วง (เช่น "ช่วงเช้า", "10:00 - 12:00") ได้อย่างอิสระตามต้องการ
-                    </p>
-                </div>
-                <div class="bg-stone-50 p-4 rounded-xl border border-stone-100">
-                    <h4 class="font-semibold text-stone-800 text-xs flex items-center gap-1.5 mb-1.5">
-                        <i class="fa-solid fa-cloud-arrow-down text-stone-700"></i> บันทึกอัตโนมัติ
-                    </h4>
-                    <p class="text-xs text-stone-500 leading-relaxed">
-                        ข้อมูลทั้งหมดจะถูกบันทึกไว้ในเบราว์เซอร์ของคุณโดยอัตโนมัติ ปลอดภัยและเรียกดูได้ทันที
-                    </p>
-                </div>
-            </div>
-        </section>
-
     </main>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-stone-200 py-6 mt-12 text-center text-xs text-stone-400">
-        <p>plannertripbyEndlessPrime • Your Ultimate Travel Companion</p>
+        <p>plannertripbyEndlessPrime • Real-time Collaboration Powered by Firebase</p>
     </footer>
 
     <!-- MODAL: ADD / EDIT ACTIVITY -->
@@ -177,17 +132,17 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-stone-700 mb-1">ชื่อสถานที่ / จุดหมายปลายทาง</label>
-                    <input type="text" id="activity-title" required placeholder="เช่น วัดอาซากุสะ (Senso-ji)" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                    <input type="text" id="activity-title" required placeholder="เช่น วัดอาซากุสะ" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-stone-700 mb-1">รายละเอียดกิจกรรม / สิ่งที่ต้องทำ</label>
-                    <textarea id="activity-notes" rows="2" placeholder="เช่น ถ่ายรูปโคมแดง เดินช้อปปิ้งถนนนากามิเซะ" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs"></textarea>
+                    <textarea id="activity-notes" rows="2" placeholder="เช่น ถ่ายรูปโคมแดง" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs"></textarea>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-stone-700 mb-1">การเดินทาง (Transport)</label>
-                    <input type="text" id="activity-transport" placeholder="เช่น รถไฟใต้ดิน Ginza Line" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
+                    <input type="text" id="activity-transport" placeholder="เช่น รถไฟใต้ดิน" class="w-full bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 text-xs">
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-3">
@@ -198,8 +153,25 @@
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- JavaScript Real-time Application Logic -->
     <script>
+        // Firebase Configuration ของคุณ
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnTSH57Xvan-FNMVBCPO9gtm9odlygDPc",
+            authDomain: "plannertripbyendlessprime.firebaseapp.com",
+            databaseURL: "https://plannertripbyendlessprime-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "plannertripbyendlessprime",
+            storageBucket: "plannertripbyendlessprime.firebasestorage.app",
+            messagingSenderId: "52952843052",
+            appId: "1:52952843052:web:a241fc90da5ec33ba02289",
+            measurementId: "G-ZBXZYTXFFK"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const tripRef = database.ref('trips/plannertripby_endless_prime');
+
         const DEFAULT_STATE = {
             currentDay: 1,
             days: [
@@ -213,27 +185,25 @@
             ]
         };
 
-        let appState = loadState();
+        let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        let isRemoteUpdate = false;
 
-        function loadState() {
-            const saved = localStorage.getItem('plannertripby_endless_prime_state');
-            if (saved) {
-                try {
-                    return JSON.parse(saved);
-                } catch (e) {
-                    console.error("Failed to parse saved state", e);
-                }
+        // ฟังการเปลี่ยนแปลงแบบ Real-time จากฐานข้อมูลบน Cloud
+        tripRef.on('value', (snapshot) => {
+            const serverData = snapshot.val();
+            if (serverData) {
+                isRemoteUpdate = true;
+                appState = serverData;
+                renderAll();
+                isRemoteUpdate = false;
+            } else {
+                tripRef.set(DEFAULT_STATE);
             }
-            return JSON.parse(JSON.stringify(DEFAULT_STATE));
-        }
+        });
 
         function saveState() {
-            localStorage.setItem('plannertripby_endless_prime_state', JSON.stringify(appState));
+            tripRef.set(appState);
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderAll();
-        });
 
         function renderAll() {
             renderDayTabs();
@@ -280,8 +250,7 @@
             appState.days.push({ day: nextDayNum, date: defaultDateStr });
             appState.currentDay = nextDayNum;
             saveState();
-            renderAll();
-            showToast(`เพิ่ม Day ${nextDayNum} (${defaultDateStr}) สำเร็จ!`);
+            showToast(`เพิ่ม Day ${nextDayNum} สำเร็จ!`);
         }
 
         function updateActiveDayDate(el) {
@@ -289,21 +258,17 @@
             if (currentDayObj) {
                 currentDayObj.date = el.value.trim();
                 saveState();
-                renderDayTabs();
-                showToast('อัปเดตวันที่สำเร็จ');
             }
         }
 
         function renderActiveDayContent() {
             const currentDayObj = appState.days.find(d => d.day === appState.currentDay) || appState.days[0];
-            const dayActivities = appState.activities.filter(a => a.day === appState.currentDay);
+            const dayActivities = (appState.activities || []).filter(a => a.day === appState.currentDay);
 
             document.getElementById('current-day-main-title').innerText = `Day ${appState.currentDay}`;
             document.getElementById('current-day-date-input').value = currentDayObj.date || '';
 
             const periodsContainer = document.getElementById('periods-container');
-
-            // Extract unique periods for this day, or default to standard ones if empty
             let uniquePeriods = [...new Set(dayActivities.map(a => a.period))];
             if (uniquePeriods.length === 0) {
                 uniquePeriods = ["ช่วงเช้า", "ช่วงบ่าย", "ช่วงเย็น / ค่ำ"];
@@ -368,7 +333,6 @@
             if (!confirm(`คุณต้องการลบ Day ${appState.currentDay} ใช่หรือไม่?`)) return;
 
             const targetDay = appState.currentDay;
-            
             let remainingDays = appState.days.filter(d => d.day !== targetDay);
             
             let oldToNewMap = {};
@@ -378,7 +342,7 @@
             });
 
             let updatedActivities = [];
-            appState.activities.forEach(a => {
+            (appState.activities || []).forEach(a => {
                 if (a.day !== targetDay) {
                     a.day = oldToNewMap[a.day];
                     updatedActivities.push(a);
@@ -390,7 +354,6 @@
             appState.currentDay = Math.min(appState.currentDay, appState.days.length);
 
             saveState();
-            renderAll();
             showToast('ลบวันเดินทางเรียบร้อยแล้ว', 'error');
         }
 
@@ -423,6 +386,8 @@
             const notes = document.getElementById('activity-notes').value.trim();
             const transport = document.getElementById('activity-transport').value.trim();
 
+            if (!appState.activities) appState.activities = [];
+
             if (id) {
                 const act = appState.activities.find(a => a.id == id);
                 if (act) {
@@ -436,21 +401,12 @@
                 showToast('แก้ไขกิจกรรมสำเร็จ');
             } else {
                 const newId = appState.activities.length > 0 ? Math.max(...appState.activities.map(a => a.id)) + 1 : 1;
-                appState.activities.push({
-                    id: newId,
-                    day,
-                    period,
-                    time,
-                    title,
-                    notes,
-                    transport
-                });
+                appState.activities.push({ id: newId, day, period, time, title, notes, transport });
                 showToast('เพิ่มกิจกรรมใหม่สำเร็จ');
             }
 
             saveState();
             closeActivityModal();
-            renderAll();
         }
 
         function editActivity(id) {
@@ -472,15 +428,15 @@
         function deleteActivity(id) {
             appState.activities = appState.activities.filter(a => a.id != id);
             saveState();
-            renderAll();
             showToast('ลบกิจกรรมเรียบร้อยแล้ว', 'error');
         }
 
         function resetDataStorage() {
-            appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-            saveState();
-            renderAll();
-            showToast('รีเซ็ตข้อมูลเป็นค่าเริ่มต้นแล้ว');
+            if (confirm("ต้องการรีเซ็ตข้อมูลทั้งหมดเป็นค่าเริ่มต้นใช่หรือไม่?")) {
+                appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+                saveState();
+                showToast('รีเซ็ตข้อมูลเรียบร้อยแล้ว');
+            }
         }
     </script>
 </body>
